@@ -9,7 +9,6 @@ import {
 } from "../../service/categoriesService";
 import { fileToBase64 } from "../../utils/imageToBase64";
 import { FaPlus, FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
-import "./Category.css";
 
 export default function CategoryPage() {
   const navigate = useNavigate();
@@ -22,7 +21,9 @@ export default function CategoryPage() {
 
   useEffect(() => {
     document.body.style.overflow = modalOpen ? "hidden" : "auto";
-    return () => { document.body.style.overflow = "auto"; };
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [modalOpen]);
 
   const load = async () => {
@@ -32,7 +33,9 @@ export default function CategoryPage() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -41,7 +44,10 @@ export default function CategoryPage() {
   };
 
   const submit = async () => {
-    if (!title || !image) { alert("Fill all fields"); return; }
+    if (!title || !image) {
+      alert("Fill all fields");
+      return;
+    }
 
     if (editingId) {
       await updateCategory(editingId, title, image);
@@ -61,33 +67,69 @@ export default function CategoryPage() {
   };
 
   return (
-    <div className="page">
+    
+    <div className="mx-auto max-w-6xl p-6">
       {/* HEADER */}
-      <div className="page-top">
-        {/* <div className="test"><h1>Hey</h1></div> */}
-        <button className="back-btn" onClick={() => navigate(-1)}>
+     
+      <div className="mb-8 grid grid-cols-3 items-center">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex w-fit items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-gray-100"
+        >
           <FaArrowLeft /> Back
         </button>
-        <h2>Categories</h2>
-        <button className="add-btn" onClick={() => setModalOpen(true)}>
-          <FaPlus /> Add
-        </button>
+
+        <h2 className="text-center text-2xl font-semibold">
+          Categories
+        </h2>
+
+        <div className="flex justify-end">
+          <button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          >
+            <FaPlus /> Add
+          </button>
+        </div>
       </div>
 
       {/* LIST */}
       {loading ? (
-        <p>Loading...</p>
+        <p className="text-center text-gray-500">Loading...</p>
       ) : (
-        <div className="category-list">
+        <div className="space-y-4">
           {categories.map((cat) => (
-            <div className="category-row" key={cat.id}>
-              <img src={`data:image/jpeg;base64,${cat.image}`} alt={cat.title} />
-              <span className="cat-title">{cat.title}</span>
-              <div className="row-actions">
-                <button onClick={() => { setEditingId(cat.id); setTitle(cat.title); setImage(cat.image); setModalOpen(true); }}>
+            <div
+              key={cat.id}
+              className="flex items-center gap-4 rounded-xl border bg-white p-4 shadow-sm"
+            >
+              <img
+                src={`data:image/jpeg;base64,${cat.image}`}
+                alt={cat.title}
+                className="h-16 w-16 rounded-lg object-cover"
+              />
+
+              <span className="flex-1 text-lg font-medium">
+                {cat.title}
+              </span>
+
+              <div className="flex gap-2">
+                <button
+                  className="rounded-lg border p-2 hover:bg-gray-100"
+                  onClick={() => {
+                    setEditingId(cat.id);
+                    setTitle(cat.title);
+                    setImage(cat.image);
+                    setModalOpen(true);
+                  }}
+                >
                   <FaEdit />
                 </button>
-                <button className="danger" onClick={() => deleteCategory(cat.id).then(load)}>
+
+                <button
+                  className="rounded-lg border border-red-200 p-2 text-red-600 hover:bg-red-50"
+                  onClick={() => deleteCategory(cat.id).then(load)}
+                >
                   <FaTrash />
                 </button>
               </div>
@@ -97,52 +139,84 @@ export default function CategoryPage() {
       )}
 
       {/* MODAL */}
-   {modalOpen && createPortal(
-  <div className="modal-overlay" onClick={reset}>
-    <div className="modal" onClick={(e) => e.stopPropagation()}>
-      
-      {/* HEADER */}
-      <div className="modal-header">
-        <h3>{editingId ? "Update Category" : "Add Category"}</h3>
-        <button className="close-btn" onClick={reset}>×</button>
-      </div>
+      {modalOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+            onClick={reset}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md rounded-2xl bg-white shadow-xl"
+            >
+              {/* HEADER */}
+              <div className="flex items-center justify-between border-b p-5">
+                <h3 className="text-lg font-semibold">
+                  {editingId ? "Update Category" : "Add Category"}
+                </h3>
+                <button
+                  onClick={reset}
+                  className="text-xl text-gray-400 hover:text-black"
+                >
+                  ×
+                </button>
+              </div>
 
-      {/* BODY */}
-      <div className="modal-body">
-        <label className="image-upload">
-          {image ? (
-            <img src={`data:image/jpeg;base64,${image}`} alt="Preview" />
-          ) : (
-            <div className="upload-placeholder">
-              Upload Image
-              <small>PNG / JPG</small>
+              {/* BODY */}
+              <div className="space-y-5 p-5">
+                <label className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 hover:border-black">
+                  {image ? (
+                    <img
+                      src={`data:image/jpeg;base64,${image}`}
+                      className="h-32 w-32 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="text-center text-gray-500">
+                      Upload Image
+                      <div className="text-xs">PNG / JPG</div>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={handleFile}
+                  />
+                </label>
+
+                <div>
+                  <label className="mb-1 block text-sm font-medium">
+                    Category Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Pendant Set"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+              </div>
+
+              {/* FOOTER */}
+              <div className="flex justify-end gap-3 border-t p-5">
+                <button
+                  onClick={reset}
+                  className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={submit}
+                  className="rounded-lg bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
+                >
+                  {editingId ? "Update" : "Save"}
+                </button>
+              </div>
             </div>
-          )}
-          <input type="file" accept="image/*" hidden onChange={handleFile} />
-        </label>
-
-        <div className="form-group">
-          <label>Category Name</label>
-          <input
-            type="text"
-            placeholder="e.g. Pendant Set"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* FOOTER */}
-      <div className="modal-footer">
-        <button className="outline-btn" onClick={reset}>Cancel</button>
-        <button className="gold-btn" onClick={submit}>{editingId ? "Update" : "Save"}</button>
-      </div>
-
-    </div>
-  </div>,
-  document.body
-)}
-
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

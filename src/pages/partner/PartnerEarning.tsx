@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { doc, getDoc, updateDoc, setDoc, Firestore } from "firebase/firestore";
 import { getShopDb } from "../../firebase/dynamicFirebase";
-import "./PartnerEarning.css";
 
 interface EarningEntry {
   billAmount: number;
@@ -38,12 +37,8 @@ const PartnerEarning: React.FC<Props> = ({ shopId }) => {
     return db;
   };
 
-  /* ---------------- FETCH PARTNER ---------------- */
   const fetchPartner = async () => {
-    if (!mobile) {
-      alert("Enter mobile number");
-      return;
-    }
+    if (!mobile) return alert("Enter mobile number");
     try {
       setLoading(true);
       const ref = doc(getCollectionRef(), "partnerusers", mobile);
@@ -51,13 +46,8 @@ const PartnerEarning: React.FC<Props> = ({ shopId }) => {
 
       if (snap.exists()) {
         let data = snap.data() as PartnerData;
-        if (!data.history) data.history = [];
-        // Sort latest first
-        data.history.sort((a: any, b: any) => {
-          const d1 = new Date(a.date.split("/").reverse().join("-"));
-          const d2 = new Date(b.date.split("/").reverse().join("-"));
-          return d2.getTime() - d1.getTime();
-        });
+        data.history = data.history || [];
+        data.history.sort((a, b) => new Date(b.date.split("/").reverse().join("-")).getTime() - new Date(a.date.split("/").reverse().join("-")).getTime());
         setPartnerData(data);
       } else {
         alert("Partner not found in database.");
@@ -71,7 +61,6 @@ const PartnerEarning: React.FC<Props> = ({ shopId }) => {
     }
   };
 
-  /* ---------------- SAVE EARNING ---------------- */
   const handleSave = async () => {
     if (!billAmount || !earningAmount || !date) {
       alert("Fill all required fields!");
@@ -80,11 +69,7 @@ const PartnerEarning: React.FC<Props> = ({ shopId }) => {
 
     const billAmtNum = Number(billAmount);
     const earnAmtNum = Number(earningAmount);
-
-    if (isNaN(billAmtNum) || isNaN(earnAmtNum)) {
-      alert("Amounts must be numbers");
-      return;
-    }
+    if (isNaN(billAmtNum) || isNaN(earnAmtNum)) return alert("Amounts must be numbers");
 
     const newEntry: EarningEntry = { billAmount: billAmtNum, earningAmount: earnAmtNum, date, remark };
 
@@ -93,28 +78,16 @@ const PartnerEarning: React.FC<Props> = ({ shopId }) => {
       const snap = await getDoc(ref);
 
       if (!snap.exists()) {
-        await setDoc(ref, {
-          name: "",
-          mobile,
-          totalEarning: earnAmtNum,
-          history: [newEntry],
-        });
+        await setDoc(ref, { name: "", mobile, totalEarning: earnAmtNum, history: [newEntry] });
       } else {
         const prev = snap.data().history || [];
         const total = (snap.data().totalEarning || 0) + earnAmtNum;
-
-        await updateDoc(ref, {
-          history: [...prev, newEntry],
-          totalEarning: total,
-        });
+        await updateDoc(ref, { history: [...prev, newEntry], totalEarning: total });
       }
 
       alert("Earning updated successfully!");
       setModalVisible(false);
-      setBillAmount("");
-      setEarningAmount("");
-      setDate("");
-      setRemark("");
+      setBillAmount(""); setEarningAmount(""); setDate(""); setRemark("");
       fetchPartner();
     } catch (err) {
       console.error(err);
@@ -123,90 +96,109 @@ const PartnerEarning: React.FC<Props> = ({ shopId }) => {
   };
 
   return (
-    <div className="container">
-      <h1 className="header">Partner Earnings</h1>
+    <div className="min-h-screen p-6 bg-gray-50">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Partner Earnings</h1>
 
-      <input
-        type="text"
-        placeholder="Enter Partner Mobile Number"
-        className="search-input"
-        value={mobile}
-        onChange={(e) => setMobile(e.target.value)}
-      />
+      <div className="flex flex-col sm:flex-row gap-2 mb-6">
+        <input
+          type="text"
+          placeholder="Enter Partner Mobile Number"
+          className="flex-1 border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+        />
+        <button
+          className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition"
+          onClick={fetchPartner}
+        >
+          Search
+        </button>
+      </div>
 
-      <button className="search-btn" onClick={fetchPartner}>
-        Search
-      </button>
-
-      {loading && <p className="loading">Loading...</p>}
+      {loading && <p className="text-gray-500">Loading...</p>}
 
       {partnerData && (
-        <div className="card">
-          <h3 className="title">📌 Partner Details</h3>
+        <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+          <h3 className="text-xl font-semibold mb-2">📌 Partner Details</h3>
           <p>Name: {partnerData.name || "Not Set"}</p>
           <p>Mobile: {partnerData.mobile}</p>
-          <p className="total-earning">Total Earning: ₹{partnerData.totalEarning || 0}</p>
+          <p className="font-semibold mt-2">Total Earning: ₹{partnerData.totalEarning || 0}</p>
 
-          <h4 className="history-title">Earning History</h4>
+          <h4 className="mt-4 font-semibold">Earning History</h4>
           {partnerData.history.length > 0 ? (
-            partnerData.history.map((h, i) => (
-              <div key={i} className="history-item">
-                <p>Bill: ₹{h.billAmount}</p>
-                <p>Earning: ₹{h.earningAmount}</p>
-                <p>Date: {h.date}</p>
-                {h.remark && <p>Note: {h.remark}</p>}
-              </div>
-            ))
+            <div className="mt-2 space-y-2">
+              {partnerData.history.map((h, i) => (
+                <div key={i} className="border rounded-md p-2 bg-gray-50">
+                  <p>Bill: ₹{h.billAmount}</p>
+                  <p>Earning: ₹{h.earningAmount}</p>
+                  <p>Date: {h.date}</p>
+                  {h.remark && <p className="text-gray-500 text-sm">Note: {h.remark}</p>}
+                </div>
+              ))}
+            </div>
           ) : (
-            <p className="no-history">No earning entries yet.</p>
+            <p className="text-gray-400 mt-2">No earning entries yet.</p>
           )}
 
-          <button className="update-btn" onClick={() => setModalVisible(true)}>
+          <button
+            className="mt-4 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+            onClick={() => setModalVisible(true)}
+          >
             + Add Earning
           </button>
         </div>
       )}
 
       {modalVisible && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3 className="modal-title">Add Partner Earning</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 overflow-y-auto max-h-[90vh]">
+            <h3 className="text-xl font-bold mb-4">Add Partner Earning</h3>
 
-            <input
-              type="number"
-              placeholder="Bill Amount"
-              className="input"
-              value={billAmount}
-              onChange={(e) => setBillAmount(e.target.value)}
-            />
-            <input
-              type="number"
-              placeholder="Earning Amount"
-              className="input"
-              value={earningAmount}
-              onChange={(e) => setEarningAmount(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Date (DD/MM/YYYY)"
-              className="input"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Remark (optional)"
-              className="input"
-              value={remark}
-              onChange={(e) => setRemark(e.target.value)}
-            />
+            <div className="flex flex-col gap-3">
+              <input
+                type="number"
+                placeholder="Bill Amount"
+                className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                value={billAmount}
+                onChange={(e) => setBillAmount(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Earning Amount"
+                className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                value={earningAmount}
+                onChange={(e) => setEarningAmount(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Date (DD/MM/YYYY)"
+                className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Remark (optional)"
+                className="border rounded-md px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                value={remark}
+                onChange={(e) => setRemark(e.target.value)}
+              />
+            </div>
 
-            <button className="save-btn" onClick={handleSave}>
-              Save
-            </button>
-            <button className="cancel-btn" onClick={() => setModalVisible(false)}>
-              Cancel
-            </button>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                className="px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition"
+                onClick={handleSave}
+              >
+                Save
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+                onClick={() => setModalVisible(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

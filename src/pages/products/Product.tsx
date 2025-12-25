@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   fetchProductsByCategory,
   addProduct,
@@ -7,8 +8,6 @@ import {
 } from "../../service/productsService";
 import { fetchCategories } from "../../service/categoriesService";
 import { fileToBase64 } from "../../utils/imageToBase64";
-import "./Product.css";
-import { useNavigate } from "react-router-dom";
 
 export default function ProductPage() {
   const navigate = useNavigate();
@@ -80,80 +79,234 @@ export default function ProductPage() {
   };
 
   return (
-    <div className="product-page">
-      <div className="header">
-        <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
-        <h2>Products</h2>
+    <div className="max-w-7xl mx-auto p-6">
+      {/* HEADER */}
+      <div className="flex items-center justify-between mb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-gray-600 hover:text-black"
+        >
+          ← Back
+        </button>
+        <h2 className="text-2xl font-semibold">Products</h2>
       </div>
 
-      <div className="controls">
-        <select value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
+      {/* CONTROLS */}
+      <div className="flex flex-wrap gap-4 mb-8">
+        <select
+          className="border rounded-lg px-3 py-2"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
           <option value="">Select Category</option>
-          {categories.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.title}
+            </option>
+          ))}
         </select>
-        <button onClick={loadProducts}>Fetch</button>
-        <button className="primary" onClick={() => { setForm({ ...form, categoryId: selectedCategory }); setModal(true); }}>
+
+        <button
+          onClick={loadProducts}
+          className="px-4 py-2 rounded-lg border hover:bg-gray-100"
+        >
+          Fetch
+        </button>
+
+        <button
+          onClick={() => {
+            setForm({ ...form, categoryId: selectedCategory });
+            setModal(true);
+          }}
+          className="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800"
+        >
           + Add Product
         </button>
       </div>
 
-      <div className="grid">
-        {products.map(p => (
-          <div className="card" key={p.id}>
-            <img src={`data:image/jpeg;base64,${p.image}`} />
-            <h4>{p.title}</h4>
-            <p>{p.weight}g · {p.karat}K</p>
-            <div className="actions">
-              <button onClick={() => { setEditingId(p.id); setForm(p); setModal(true); }}>Edit</button>
-              <button className="danger" onClick={() => deleteProduct(p.id).then(loadProducts)}>Delete</button>
+      {/* PRODUCT GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {products.map((p) => (
+          <div
+            key={p.id}
+            className="bg-white rounded-xl shadow hover:shadow-lg transition"
+          >
+            <img
+              src={`data:image/jpeg;base64,${p.image}`}
+              className="w-full h-48 object-cover rounded-t-xl"
+            />
+
+            <div className="p-4">
+              <h4 className="font-semibold">{p.title}</h4>
+              <p className="text-sm text-gray-600">
+                {p.weight}g · {p.karat}K
+              </p>
+
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => {
+                    setEditingId(p.id);
+                    setForm(p);
+                    setModal(true);
+                  }}
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={() => deleteProduct(p.id).then(loadProducts)}
+                  className="text-sm text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {modal && (
-        <div className="modal-bg" onClick={reset}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingId ? "Update Product" : "Add Product"}</h3>
-              <button className="close-btn" onClick={reset}>×</button>
-            </div>
+      {/* MODAL */}
+   {modal && (
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="bg-white w-full max-w-2xl h-[90vh] rounded-xl shadow-lg flex flex-col"
+    >
+      {/* HEADER */}
+      <div className="flex justify-between items-center px-6 py-4 border-b">
+        <h3 className="font-semibold text-lg">
+          {editingId ? "Update Product" : "Add Product"}
+        </h3>
+        <button
+          onClick={reset}
+          className="text-2xl leading-none text-gray-500 hover:text-black"
+        >
+          ×
+        </button>
+      </div>
 
-            <div className="modal-body">
-              <div className="form-grid">
-                <input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-                {/* <input placeholder="Shop" value={form.shop} onChange={e => setForm({ ...form, shop: e.target.value })} /> */}
-                <input placeholder="Weight (g)" value={form.weight} onChange={e => setForm({ ...form, weight: e.target.value })} />
-                <input placeholder="Karat" value={form.karat} onChange={e => setForm({ ...form, karat: e.target.value })} />
-                <input placeholder="Making Charge" value={form.making} onChange={e => setForm({ ...form, making: e.target.value })} />
+      {/* BODY (SCROLLABLE) */}
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <input
+            className="border rounded-lg px-3 py-2"
+            placeholder="Title"
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
+            }
+          />
 
-                <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })}>
-                  <option value="">Category</option>
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
-                </select>
-              </div>
+          <input
+            className="border rounded-lg px-3 py-2"
+            placeholder="Weight (g)"
+            value={form.weight}
+            onChange={(e) =>
+              setForm({ ...form, weight: e.target.value })
+            }
+          />
 
-              <textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+          <input
+            className="border rounded-lg px-3 py-2"
+            placeholder="Karat"
+            value={form.karat}
+            onChange={(e) =>
+              setForm({ ...form, karat: e.target.value })
+            }
+          />
 
-              <div className="switch-row">
-                <label><input type="checkbox" checked={form.stock} onChange={e => setForm({ ...form, stock: e.target.checked })} /> In Stock</label>
-                <label><input type="checkbox" checked={form.show} onChange={e => setForm({ ...form, show: e.target.checked })} /> Visible</label>
-              </div>
+          <input
+            className="border rounded-lg px-3 py-2"
+            placeholder="Making Charge"
+            value={form.making}
+            onChange={(e) =>
+              setForm({ ...form, making: e.target.value })
+            }
+          />
 
-              <input type="file" onChange={handleImage} />
-
-              {form.image && <img className="preview" src={`data:image/jpeg;base64,${form.image}`} />}
-            </div>
-
-            <div className="modal-footer">
-              <div className="modal-actions">
-                <button className="primary" onClick={submit}>Save</button>
-                <button onClick={reset}>Cancel</button>
-              </div>
-            </div>
-          </div>
+          <select
+            className="border rounded-lg px-3 py-2 sm:col-span-2"
+            value={form.categoryId}
+            onChange={(e) =>
+              setForm({ ...form, categoryId: e.target.value })
+            }
+          >
+            <option value="">Category</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+
+        <textarea
+          className="border rounded-lg px-3 py-2 w-full min-h-[80px]"
+          placeholder="Description"
+          value={form.description}
+          onChange={(e) =>
+            setForm({ ...form, description: e.target.value })
+          }
+        />
+
+        {/* SWITCHES */}
+        <div className="flex gap-6">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={form.stock}
+              onChange={(e) =>
+                setForm({ ...form, stock: e.target.checked })
+              }
+            />
+            In Stock
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={form.show}
+              onChange={(e) =>
+                setForm({ ...form, show: e.target.checked })
+              }
+            />
+            Visible
+          </label>
+        </div>
+
+        {/* IMAGE UPLOAD */}
+        <div className="space-y-2">
+          <input type="file" onChange={handleImage} />
+
+          {form.image && (
+            <img
+              src={`data:image/jpeg;base64,${form.image}`}
+              className="w-full max-h-48 object-contain rounded-lg border"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* FOOTER (ALWAYS VISIBLE) */}
+      <div className="border-t px-6 py-4 flex justify-end gap-3 bg-white">
+        <button
+          onClick={reset}
+          className="px-5 py-2 rounded-lg border hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={submit}
+          className="px-5 py-2 rounded-lg bg-black text-white hover:bg-gray-800"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

@@ -21,6 +21,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+   
+
         <Route path="/" element={<Dashboard />} />
         <Route path="/categories" element={<CategoryPage />} />
         <Route path="/products" element={<Product />} />
@@ -35,3 +37,10 @@ function App() {
 }
 
 export default App;
+// export default function App() {
+//   return (
+//     <div className="m-10 rounded-xl bg-green-500 p-6 text-white text-xl">
+//       Tailwind v3 is WORKING 🎉
+//     </div>
+//   );
+// }

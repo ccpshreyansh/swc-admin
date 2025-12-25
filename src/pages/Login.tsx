@@ -5,7 +5,6 @@ import { doc, getDoc } from "firebase/firestore";
 import { masterDb } from "../firebase/masterFirebase";
 import { useFirebaseConfig } from "../context/FirebaseContext";
 import { initShopFirebase } from "../firebase/dynamicFirebase";
-import "./Login.css";
 
 export default function Login() {
   const [shopId, setShopId] = useState("");
@@ -44,9 +43,8 @@ export default function Login() {
         shopName: data.shopName,
       };
 
-   setShopConfig(config); // this now saves to localStorage automatically
-initShopFirebase(config);
-
+      setShopConfig(config); // Saves to localStorage automatically
+      initShopFirebase(config);
     } catch (err) {
       console.error(err);
       alert("Login failed");
@@ -56,34 +54,47 @@ initShopFirebase(config);
   };
 
   return (
-    <div className="login-wrapper">
-      <div className="login-card">
-        <div className="login-brand">
-          <GiDiamondRing className="brand-icon" />
-          <h1>Jewellery Admin</h1>
-          <p>by Shreyansh Webcraft</p>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8 flex flex-col gap-6">
+        {/* Brand */}
+        <div className="flex flex-col items-center gap-2 mb-4">
+          <GiDiamondRing className="text-5xl text-yellow-500" />
+          <h1 className="text-2xl font-bold text-gray-800">Jewellery Admin</h1>
+          <p className="text-gray-500 text-sm">by Shreyansh Webcraft</p>
         </div>
 
-        <div className="input-group">
-          <FiUser />
-          <input
-            placeholder="Shop ID"
-            value={shopId}
-            onChange={(e) => setShopId(e.target.value)}
-          />
+        {/* Inputs */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 border rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-500 transition">
+            <FiUser className="text-gray-400 text-xl" />
+            <input
+              className="flex-1 outline-none text-gray-700"
+              placeholder="Shop ID"
+              value={shopId}
+              onChange={(e) => setShopId(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 border rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-indigo-500 transition">
+            <FiLock className="text-gray-400 text-xl" />
+            <input
+              className="flex-1 outline-none text-gray-700"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div className="input-group">
-          <FiLock />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        <button onClick={handleLogin} disabled={loading}>
+        {/* Login Button */}
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className={`w-full px-4 py-2 rounded-md text-white font-semibold transition ${
+            loading ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-500 hover:bg-indigo-600"
+          }`}
+        >
           {loading ? "Authenticating..." : "Login Securely"}
         </button>
       </div>

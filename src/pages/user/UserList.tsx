@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, Firestore } from "firebase/firestore";
 import { getShopDb } from "../../firebase/dynamicFirebase"; // dynamic DB
-import "./UserList.css";
 
 export interface UserProfile {
   name?: string;
@@ -55,42 +54,50 @@ const UserList: React.FC<Props> = ({ shopId }) => {
 
   if (loading) {
     return (
-      <div className="loader">
-        <p>Loading users...</p>
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500 text-lg">Loading users...</p>
       </div>
     );
   }
 
   return (
-    <div className="container">
-      <div className="header">
-        <button className="back-btn" onClick={() => window.history.back()}>
+    <div className="min-h-screen p-6 bg-gray-50">
+      {/* Header */}
+      <div className="flex items-center mb-6">
+        <button
+          className="px-3 py-2 mr-4 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+          onClick={() => window.history.back()}
+        >
           &#8592;
         </button>
-        <h1 className="header-title">All Users</h1>
+        <h1 className="text-3xl font-bold text-gray-800">All Users</h1>
       </div>
 
-      <div className="user-list">
+      {/* User List */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {users.map(user => (
-          <div key={user.id} className="card">
-            <div className="header-row">
-              <h3 className="name">{user.profile?.name || "No Name"}</h3>
-              <span className="city">{user.profile?.city || "-"}</span>
+          <div key={user.id} className="bg-white rounded-xl shadow-md p-5 hover:shadow-xl transition">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-semibold text-gray-800">{user.profile?.name || "No Name"}</h3>
+              <span className="text-sm text-gray-500">{user.profile?.city || "-"}</span>
             </div>
-            <div className="info-row">
-              <span className="icon">📞</span>
-              <span className="info-text">{user.mobile}</span>
-            </div>
-            <div className="info-row">
-              <span className="icon">⚥</span>
-              <span className="info-text">{user.gender || "-"}</span>
-            </div>
-            <div className="info-row">
-              <span className="icon">🔑</span>
-              <span className="info-text">PIN: {user.pin}</span>
-            </div>
-            <div className="created-at">
-              Created: {formatDate(user.createdAt)}
+
+            <div className="space-y-2 text-gray-600 text-sm">
+              <div className="flex items-center gap-2">
+                <span>📞</span>
+                <span>{user.mobile || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>⚥</span>
+                <span>{user.gender || "-"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>🔑</span>
+                <span>PIN: {user.pin || "-"}</span>
+              </div>
+              <div className="text-gray-400 text-xs mt-2">
+                Created: {formatDate(user.createdAt)}
+              </div>
             </div>
           </div>
         ))}
