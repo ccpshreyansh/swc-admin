@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { collection, getDocs, Firestore } from "firebase/firestore";
-import { getShopDb } from "../firebase/dynamicFirebase"; // dynamic DB
+import { getShopDb } from "../../firebase/dynamicFirebase"; // dynamic DB
 import "./UserList.css";
 
 export interface UserProfile {

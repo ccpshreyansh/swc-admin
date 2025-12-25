@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { doc, getDoc, updateDoc, setDoc, Firestore } from "firebase/firestore";
-import { getShopDb } from "../firebase/dynamicFirebase";
+import { getShopDb } from "../../firebase/dynamicFirebase";
 import "./PartnerEarning.css";
 
 interface EarningEntry {

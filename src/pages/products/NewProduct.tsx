@@ -141,51 +141,58 @@ export default function ProductPage() {
 
       {/* MODAL */}
       {modal && (
-        <div className="modal-bg">
-          <div className="modal">
-            <h3>{editingId ? "Update Product" : "Add Product"}</h3>
-
-            <div className="form-grid">
-              <input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-              <input placeholder="Shop" value={form.shop} onChange={e => setForm({ ...form, shop: e.target.value })} />
-              <input placeholder="Weight (g)" value={form.weight} onChange={e => setForm({ ...form, weight: e.target.value })} />
-              <input placeholder="Karat" value={form.karat} onChange={e => setForm({ ...form, karat: e.target.value })} />
-              <input placeholder="Making Charge" value={form.making} onChange={e => setForm({ ...form, making: e.target.value })} />
-
-              <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })}>
-                <option value="">Category</option>
-                {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.title}</option>
-                ))}
-              </select>
+        <div className="modal-bg" onClick={reset}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{editingId ? "Update Product" : "Add Product"}</h3>
+              <button className="close-btn" onClick={reset}>×</button>
             </div>
 
-            <textarea
-              placeholder="Description"
-              value={form.description}
-              onChange={e => setForm({ ...form, description: e.target.value })}
-            />
+            <div className="modal-body">
+              <div className="form-grid">
+                <input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+                {/* <input placeholder="Shop" value={form.shop} onChange={e => setForm({ ...form, shop: e.target.value })} /> */}
+                <input placeholder="Weight (g)" value={form.weight} onChange={e => setForm({ ...form, weight: e.target.value })} />
+                <input placeholder="Karat" value={form.karat} onChange={e => setForm({ ...form, karat: e.target.value })} />
+                <input placeholder="Making Charge" value={form.making} onChange={e => setForm({ ...form, making: e.target.value })} />
 
-            <div className="switch-row">
-              <label>
-                <input type="checkbox" checked={form.stock} onChange={e => setForm({ ...form, stock: e.target.checked })} />
-                In Stock
-              </label>
-              <label>
-                <input type="checkbox" checked={form.show} onChange={e => setForm({ ...form, show: e.target.checked })} />
-                Visible
-              </label>
+                <select value={form.categoryId} onChange={e => setForm({ ...form, categoryId: e.target.value })}>
+                  <option value="">Category</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              <textarea
+                placeholder="Description"
+                value={form.description}
+                onChange={e => setForm({ ...form, description: e.target.value })}
+              />
+
+              <div className="switch-row">
+                <label>
+                  <input type="checkbox" checked={form.stock} onChange={e => setForm({ ...form, stock: e.target.checked })} />
+                  In Stock
+                </label>
+                <label>
+                  <input type="checkbox" checked={form.show} onChange={e => setForm({ ...form, show: e.target.checked })} />
+                  Visible
+                </label>
+              </div>
+
+              <input type="file" onChange={handleImage} />
+
+              {form.image && (
+                <img className="preview" src={`data:image/jpeg;base64,${form.image}`} />
+              )}
             </div>
 
-            <input type="file" onChange={handleImage} />
-
-            {form.image && (
-              <img className="preview" src={`data:image/jpeg;base64,${form.image}`} />
-            )}
-
-            <div className="modal-actions">
-              <button className="primary" onClick={submit}>Save</button>
-              <button onClick={reset}>Cancel</button>
+            <div className="modal-footer">
+              <div className="modal-actions">
+                <button className="primary" onClick={submit}>Save</button>
+                <button onClick={reset}>Cancel</button>
+              </div>
             </div>
           </div>
         </div>

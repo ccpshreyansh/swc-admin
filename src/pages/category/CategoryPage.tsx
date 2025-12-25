@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 import {
   fetchCategories,
   addCategory,
@@ -12,13 +13,17 @@ import "./Category.css";
 
 export default function CategoryPage() {
   const navigate = useNavigate();
-
   const [categories, setCategories] = useState<any[]>([]);
   const [title, setTitle] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = modalOpen ? "hidden" : "auto";
+    return () => { document.body.style.overflow = "auto"; };
+  }, [modalOpen]);
 
   const load = async () => {
     setLoading(true);
@@ -27,9 +32,7 @@ export default function CategoryPage() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
@@ -38,11 +41,13 @@ export default function CategoryPage() {
   };
 
   const submit = async () => {
-    if (!title || !image) return alert("Fill all fields");
+    if (!title || !image) { alert("Fill all fields"); return; }
 
-    editingId
-      ? await updateCategory(editingId, title, image)
-      : await addCategory(title, image);
+    if (editingId) {
+      await updateCategory(editingId, title, image);
+    } else {
+      await addCategory(title, image);
+    }
 
     reset();
     load();
@@ -59,12 +64,11 @@ export default function CategoryPage() {
     <div className="page">
       {/* HEADER */}
       <div className="page-top">
+        {/* <div className="test"><h1>Hey</h1></div> */}
         <button className="back-btn" onClick={() => navigate(-1)}>
           <FaArrowLeft /> Back
         </button>
-
         <h2>Categories</h2>
-
         <button className="add-btn" onClick={() => setModalOpen(true)}>
           <FaPlus /> Add
         </button>
@@ -72,34 +76,18 @@ export default function CategoryPage() {
 
       {/* LIST */}
       {loading ? (
-        <p className="loading">Loading...</p>
+        <p>Loading...</p>
       ) : (
         <div className="category-list">
           {categories.map((cat) => (
             <div className="category-row" key={cat.id}>
-              <img
-                src={`data:image/jpeg;base64,${cat.image}`}
-                alt={cat.title}
-              />
-
+              <img src={`data:image/jpeg;base64,${cat.image}`} alt={cat.title} />
               <span className="cat-title">{cat.title}</span>
-
               <div className="row-actions">
-                <button
-                  onClick={() => {
-                    setEditingId(cat.id);
-                    setTitle(cat.title);
-                    setImage(cat.image);
-                    setModalOpen(true);
-                  }}
-                >
+                <button onClick={() => { setEditingId(cat.id); setTitle(cat.title); setImage(cat.image); setModalOpen(true); }}>
                   <FaEdit />
                 </button>
-
-                <button
-                  className="danger"
-                  onClick={() => deleteCategory(cat.id).then(load)}
-                >
+                <button className="danger" onClick={() => deleteCategory(cat.id).then(load)}>
                   <FaTrash />
                 </button>
               </div>
@@ -109,37 +97,52 @@ export default function CategoryPage() {
       )}
 
       {/* MODAL */}
-      {modalOpen && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>{editingId ? "Update Category" : "Add Category"}</h3>
+   {modalOpen && createPortal(
+  <div className="modal-overlay" onClick={reset}>
+    <div className="modal" onClick={(e) => e.stopPropagation()}>
+      
+      {/* HEADER */}
+      <div className="modal-header">
+        <h3>{editingId ? "Update Category" : "Add Category"}</h3>
+        <button className="close-btn" onClick={reset}>×</button>
+      </div>
 
-            <input
-              placeholder="Category title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-
-            <input type="file" accept="image/*" onChange={handleFile} />
-
-            {image && (
-              <img
-                src={`data:image/jpeg;base64,${image}`}
-                className="preview"
-              />
-            )}
-
-            <div className="modal-actions">
-              <button className="gold-btn" onClick={submit}>
-                Save
-              </button>
-              <button className="outline-btn" onClick={reset}>
-                Cancel
-              </button>
+      {/* BODY */}
+      <div className="modal-body">
+        <label className="image-upload">
+          {image ? (
+            <img src={`data:image/jpeg;base64,${image}`} alt="Preview" />
+          ) : (
+            <div className="upload-placeholder">
+              Upload Image
+              <small>PNG / JPG</small>
             </div>
-          </div>
+          )}
+          <input type="file" accept="image/*" hidden onChange={handleFile} />
+        </label>
+
+        <div className="form-group">
+          <label>Category Name</label>
+          <input
+            type="text"
+            placeholder="e.g. Pendant Set"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
-      )}
+      </div>
+
+      {/* FOOTER */}
+      <div className="modal-footer">
+        <button className="outline-btn" onClick={reset}>Cancel</button>
+        <button className="gold-btn" onClick={submit}>{editingId ? "Update" : "Save"}</button>
+      </div>
+
+    </div>
+  </div>,
+  document.body
+)}
+
     </div>
   );
 }
