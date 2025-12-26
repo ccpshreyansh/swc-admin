@@ -50,6 +50,11 @@ const cards = [
     icon: <FaUsers className="text-3xl text-indigo-500" />,
     path: "/partners",
     desc: "View all partners",
+  },{
+    title: "Rates",
+    icon: <FaChartLine className="text-3xl text-indigo-500" />,
+    path: "/rates",
+    desc: "View all partners",
   },
 ];
 

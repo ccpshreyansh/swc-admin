@@ -9,6 +9,7 @@ import NewProduct from "./pages/products/NewProduct";
 import InvestmentUser from "./pages/investments/InvestmentUser";
 import UserList from "./pages/user/UserList";
 import PartnerEarning from "./pages/partner/PartnerEarning";
+import LiveRates from "./pages/rates/liveRates";
 // import ProductPage from "./pages/product/ProductPage";
 // import InvestmentPage from "./pages/investment/InvestmentPage";
 // import UsersPage from "./pages/users/UsersPage";
@@ -31,6 +32,7 @@ function App() {
           <Route path="/investment-users" element={<InvestmentUser />} />
         <Route path="/users" element={<UserList />} />
          <Route path="/partners" element={<PartnerEarning />} />
+          <Route path="/rates" element={<LiveRates />} />
       </Routes>
     </BrowserRouter>
   );
