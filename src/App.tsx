@@ -9,7 +9,7 @@ import NewProduct from "./pages/products/NewProduct";
 import InvestmentUser from "./pages/investments/InvestmentUser";
 import UserList from "./pages/user/UserList";
 import PartnerEarning from "./pages/partner/PartnerEarning";
-import LiveRates from "./pages/rates/liveRates";
+import LiveRates from "./pages/rates/LiveRates";
 // import ProductPage from "./pages/product/ProductPage";
 // import InvestmentPage from "./pages/investment/InvestmentPage";
 // import UsersPage from "./pages/users/UsersPage";
